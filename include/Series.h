@@ -128,6 +128,8 @@ public:
     Series<T> series_pow(const T &scalar);
     Series<T> series_sqrt();
     Series<T> series_abs();
+
+    Series<T> copy();
     
     const std::vector<T> to_vector() const;
     

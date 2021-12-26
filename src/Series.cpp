@@ -199,6 +199,11 @@ template<typename T> std::vector<Series<T>> Series<T>::transpose(std::vector<Ser
     return transposed;
 };
 
+template<typename T> Series<T> Series<T>::copy() {
+    auto vector = this->to_vector();
+    return Series(vector);
+}
+
 //  We have to do this :(
 template class Series<int>;
 template class Series<float>;
