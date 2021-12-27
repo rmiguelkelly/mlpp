@@ -19,23 +19,31 @@ template<typename T> Series<T>::Series(const std::vector<T> &list) {
     this->internal_vec = std::make_unique<std::vector<T>>(list);
 }
 
-template<typename T> Series<T>::Series(T value, size_t size) {
-    
-    this->internal_vec = std::make_unique<std::vector<T>>();
-    
-    for (int i = 0; i < size; i++) {
-        this->internal_vec->push_back(value);
+template<typename T> Series<T>::Series(T array[], size_t size) : Series() {
+    for (size_t i = 0; i < size; i++) {
+        this->internal_vec->push_back(array[i]);
     }
+}
+
+template<typename T> Series<T> Series<T>::uniform(T value, size_t size) {
+    
+    std::vector<T> vec;
+
+    for (int i = 0; i < size; i++) {
+        vec.push_back(value);
+    }
+
+    return Series(vec);
 }
 
 template<typename T> Series<T> Series<T>::zeros(size_t size) {
     
-    return Series(0, size);
+    return Series::uniform(0, size);
 }
 
 template<typename T> Series<T> Series<T>::ones(size_t size) {
     
-    return Series(1, size);
+    return Series::uniform(1, size);
 }
 
 template<typename T> size_t Series<T>::size() const {

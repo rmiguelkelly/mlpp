@@ -8,15 +8,11 @@
 #include <iostream>
 #include <stdio.h>
 #include <vector>
+#include <math.h>
 
 #include "../include/LinearRegressor.h"
 
 LinearRegressor::LinearRegressor() { }
-
-//  The mean squared error loss function
-double mse(Series<double> y_predict, Series<double> y_actual) {
-    return (y_predict - y_actual).series_pow(2).sum() / y_predict.size();
-}
 
 //  Initialize an array with a set of uniform values
 void init_array(double *array, size_t size, int value) {
@@ -45,7 +41,7 @@ void LinearRegressor::fit(std::vector<Series<double>> x, Series<double> y, int e
     init_array(_w, F, 1);
     
     //  Iterate updating the weights and biases X times
-    for (int _ = 0; _ < epochs; _++) {
+    for (int epoch_index = 0; epoch_index <= epochs; epoch_index++) {
         
         //  Go through each sample for batch gradient descent, we can
         //  change this to stochastic GD to limit the iterations....
@@ -62,15 +58,19 @@ void LinearRegressor::fit(std::vector<Series<double>> x, Series<double> y, int e
             
             double weighted_sum_for_row = 0;
             
+            //  Calculate the weighted sum (w1x1 + w2x2 + ... + wnxn + B)
             for (int j = 0; j < F; j++) {
                 weighted_sum_for_row += _w[j] * x[i][j];
             }
             
             weighted_sum_for_row += _b;
             
+            //  The partial derivitive for the bias
             df_db += -2.0 * (y[i] - weighted_sum_for_row);
             
             for (int j = 0; j < F; j++) {
+
+                //  The partial derivitive for each weight
                 df_dw[j] += -2 * x[i][j] * (y[i] - weighted_sum_for_row);
             }
         }
@@ -85,10 +85,33 @@ void LinearRegressor::fit(std::vector<Series<double>> x, Series<double> y, int e
         
         //  Update the weights and bias
         for (int i = 0; i < F; i++) {
+
+            //  Adjust each weight
             _w[i] -= learning_rate * df_dw[i];
         }
         
+        //  Adjust the bias
         _b -= learning_rate * df_db;
+
+        //  Log the current MSE
+        if (epoch_index % 10 == 0) {
+            
+            //  Initialize the MSE to zero and then add each distance
+            double mse = 0;
+
+            //  MSE = 1/N SUM(y_predicted - y_actual)^2
+            //  This is essentially the "squared error" part of the MSE
+            for (int i = 0; i < y.size(); i++) {
+                double y_pred = (x[i] - Series<double>(_w, F)).sum() + b;
+                mse += pow((y[i] - y_pred), 2);
+            }
+
+            //  Compute the mean
+            mse /= N;
+
+            //  Log the mean squared error to the console to visually see if we are converging
+            printf("<LinearRegressor epoch = %d MSE = %.4f>\n", epoch_index, mse);
+        }
     }
     
     //  === Update the class weights and bias ===
@@ -103,6 +126,7 @@ void LinearRegressor::fit(std::vector<Series<double>> x, Series<double> y, int e
     // ==============
 }
 
+//  After fitting the model, predict values
 Series<double> LinearRegressor::predict(std::vector<Series<double>> x) const {
     
     std::vector<double> predictions;

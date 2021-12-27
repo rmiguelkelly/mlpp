@@ -91,13 +91,12 @@ public:
     Series();
     Series(std::initializer_list<T> list);
     Series(const std::vector<T> &list);
-    
-    //  Creates a list of size n filled with the specified value
-    Series(T value, size_t size);
+    Series(T array[], size_t size);
     
     //  Static helpers
     static Series<T> zeros(size_t size);
     static Series<T> ones(size_t size);
+    static Series<T> uniform(T value, size_t size);
     
     //  Stats
     size_t size() const;
